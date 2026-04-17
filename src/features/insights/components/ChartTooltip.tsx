@@ -1,19 +1,29 @@
-import type { TooltipProps } from "recharts";
-import type { ValueType, NameType } from "recharts/types/component/DefaultTooltipContent";
+import type { Payload } from "recharts/types/component/DefaultTooltipContent";
 import { formatCurrency } from "@/lib/format";
 
 type Formatter = (value: number) => string;
 
-interface ChartTooltipProps extends TooltipProps<ValueType, NameType> {
-  /** Override the tooltip title. If omitted, uses the `fullName` on the first
+type TooltipItem = {
+  name: string;
+  value: number;
+  color: string;
+  payload: Record<string, unknown>;
+};
+
+// Recharts passes these props to custom tooltip components at runtime.
+// We declare them explicitly rather than extending TooltipProps to avoid
+// the strict-mode issue where inherited optional members aren't visible.
+interface ChartTooltipProps {
+  active?: boolean;
+  payload?: Payload<number, string>[];
+  label?: string;
+  /** Override the tooltip title. If omitted, uses `fullName` on the first
    * payload item (preferred — avoids truncated axis labels) or falls back to `label`. */
   titleKey?: string;
   /** How to render each value. Defaults to currency. */
   format?: Formatter;
   /** Optional footer renderer given the full payload array. */
-  footer?: (
-    items: { name: string; value: number; color: string; payload: Record<string, unknown> }[],
-  ) => React.ReactNode;
+  footer?: (items: TooltipItem[]) => React.ReactNode;
 }
 
 /**
@@ -35,9 +45,9 @@ export function ChartTooltip({
 
   const first = payload[0].payload as Record<string, unknown> | undefined;
   const titleFromPayload = titleKey && first ? first[titleKey] : first?.fullName;
-  const title = (titleFromPayload as string) ?? (label as string) ?? "";
+  const title = (titleFromPayload as string) ?? label ?? "";
 
-  const items = payload.map(p => ({
+  const items: TooltipItem[] = payload.map((p: Payload<number, string>) => ({
     name: String(p.name ?? ""),
     value: Number(p.value ?? 0),
     color: String(p.color ?? "#888"),
@@ -51,17 +61,17 @@ export function ChartTooltip({
           {title}
         </p>
       )}
-      {items.map((p, i) => (
+      {items.map((item: TooltipItem, i: number) => (
         <div key={i} className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-1.5">
             <span
               className="w-2.5 h-2.5 rounded-sm shrink-0"
-              style={{ backgroundColor: p.color }}
+              style={{ backgroundColor: item.color }}
             />
-            <span className="text-muted-foreground text-xs">{p.name}</span>
+            <span className="text-muted-foreground text-xs">{item.name}</span>
           </div>
           <span className="font-mono font-semibold text-foreground text-xs">
-            {format(p.value)}
+            {format(item.value)}
           </span>
         </div>
       ))}

@@ -71,7 +71,7 @@ export function HouseholdDetailPage() {
   ];
 
   const initials = household.name
-    .split(" ").filter(Boolean).map(w => w[0]).slice(0, 2).join("").toUpperCase();
+    .split(" ").filter(Boolean).map((w: string) => w[0]).slice(0, 2).join("").toUpperCase();
 
   const hasGoals = !!household.goals;
   const hasPrefs = !!household.preferences;

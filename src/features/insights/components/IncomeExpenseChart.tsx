@@ -73,7 +73,7 @@ export function IncomeExpenseChart({ data }: Props) {
                 <Cell key={i} fill="hsl(var(--chart-1))" opacity={1 - i * 0.04} />
               ))}
               <LabelList
-                dataKey="Income" position="right" formatter={formatAxisCurrency}
+                dataKey="Income" position="right" formatter={(v: unknown) => formatAxisCurrency(Number(v))}
                 style={{ fontSize: 10, fill: "hsl(var(--muted-foreground))", fontWeight: 500 }}
               />
             </Bar>
