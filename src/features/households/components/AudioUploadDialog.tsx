@@ -103,7 +103,6 @@ export function AudioUploadDialog({ householdId }: AudioUploadDialogProps) {
             Upload Audio Recording
           </DialogTitle>
           <p className="text-sm text-muted-foreground">
-            Whisper transcribes the recording, then GPT-4o extracts financial updates.
           </p>
         </DialogHeader>
 

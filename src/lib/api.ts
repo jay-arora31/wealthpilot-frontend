@@ -26,11 +26,13 @@ export const householdApi = {
     fd.append("file", file);
     return api.post("/households/upload-excel", fd).then((r) => r.data);
   },
-  uploadAudio: (id: string, file: File) => {
+  uploadAudio: (id: string, file: File, force: boolean = false) => {
     const fd = new FormData();
     fd.append("file", file);
     return api
-      .post(`/households/${id}/upload-audio`, fd)
+      .post(`/households/${id}/upload-audio`, fd, {
+        params: force ? { force: true } : undefined,
+      })
       .then((r) => r.data);
   },
 };
