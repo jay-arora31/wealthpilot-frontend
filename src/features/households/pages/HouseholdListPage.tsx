@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Table,
@@ -40,7 +40,14 @@ import {
   ArrowUpDown,
   ChevronUp,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react";
+
+const PAGE_SIZE_OPTIONS = [10, 25, 50, 100] as const;
+const DEFAULT_PAGE_SIZE = 10;
 
 type SortKey = "name" | "income" | "net_worth" | "member_count";
 type SortDir = "asc" | "desc";
@@ -140,6 +147,8 @@ export function HouseholdListPage() {
   const [deletingHousehold, setDeletingHousehold] = useState<HouseholdSummary | null>(null);
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
 
   const sortValue = `${sortKey}-${sortDir}` as `${SortKey}-${SortDir}`;
 
@@ -176,6 +185,26 @@ export function HouseholdListPage() {
       return sortDir === "asc" ? cmp : -cmp;
     });
   }, [households, search, sortKey, sortDir]);
+
+  // Reset to first page whenever the visible result set changes shape
+  useEffect(() => {
+    setPage(1);
+  }, [search, sortKey, sortDir, pageSize]);
+
+  const totalItems = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  const safePage = Math.min(page, totalPages);
+  const startIdx = totalItems === 0 ? 0 : (safePage - 1) * pageSize;
+  const endIdx = Math.min(startIdx + pageSize, totalItems);
+  const pageRows = useMemo(
+    () => filtered.slice(startIdx, endIdx),
+    [filtered, startIdx, endIdx],
+  );
+
+  // Clamp page if the total shrinks (e.g. after a delete)
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
 
   const totalIncome = households?.reduce(
     (s: number, h: HouseholdSummary) => s + (Number(h.income) || 0), 0
@@ -362,14 +391,14 @@ export function HouseholdListPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.length === 0 && (
+                {totalItems === 0 && (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-10 text-sm text-muted-foreground">
+                    <TableCell colSpan={6} className="text-center py-10 text-sm text-muted-foreground">
                       No households match &ldquo;{search}&rdquo;
                     </TableCell>
                   </TableRow>
                 )}
-                {filtered.map((h: HouseholdSummary) => (
+                {pageRows.map((h: HouseholdSummary) => (
                   <TableRow
                     key={h.id}
                     className="cursor-pointer hover:bg-primary/3 transition-colors border-b border-border/60 last:border-0 group"
@@ -425,6 +454,115 @@ export function HouseholdListPage() {
                 ))}
               </TableBody>
             </Table>
+
+            {/* Pagination footer */}
+            {totalItems > 0 && (
+              <div className="flex items-center justify-between gap-4 px-6 py-3 border-t border-border bg-muted/20 text-xs">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <span>
+                    Showing{" "}
+                    <span className="font-semibold text-foreground tabular-nums">
+                      {startIdx + 1}–{endIdx}
+                    </span>{" "}
+                    of{" "}
+                    <span className="font-semibold text-foreground tabular-nums">
+                      {totalItems}
+                    </span>
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  {/* Rows per page */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">Rows per page</span>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-7 px-2 gap-1 text-xs font-medium tabular-nums"
+                        >
+                          {pageSize}
+                          <ChevronDown className="w-3 h-3 opacity-60" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="min-w-[72px]">
+                        <DropdownMenuRadioGroup
+                          value={String(pageSize)}
+                          onValueChange={(v) => setPageSize(Number(v))}
+                        >
+                          {PAGE_SIZE_OPTIONS.map((size) => (
+                            <DropdownMenuRadioItem
+                              key={size}
+                              value={String(size)}
+                              className="text-xs tabular-nums"
+                            >
+                              {size}
+                            </DropdownMenuRadioItem>
+                          ))}
+                        </DropdownMenuRadioGroup>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  {/* Page counter */}
+                  <span className="text-muted-foreground tabular-nums">
+                    Page{" "}
+                    <span className="font-semibold text-foreground">
+                      {safePage}
+                    </span>{" "}
+                    of{" "}
+                    <span className="font-semibold text-foreground">
+                      {totalPages}
+                    </span>
+                  </span>
+
+                  {/* Nav buttons */}
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-7 w-7"
+                      onClick={() => setPage(1)}
+                      disabled={safePage === 1}
+                      aria-label="First page"
+                    >
+                      <ChevronsLeft className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-7 w-7"
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={safePage === 1}
+                      aria-label="Previous page"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-7 w-7"
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={safePage === totalPages}
+                      aria-label="Next page"
+                    >
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-7 w-7"
+                      onClick={() => setPage(totalPages)}
+                      disabled={safePage === totalPages}
+                      aria-label="Last page"
+                    >
+                      <ChevronsRight className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
