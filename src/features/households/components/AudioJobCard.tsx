@@ -407,6 +407,11 @@ function AudioJobCardInner({ job }: { job: ActiveJob }) {
                         </li>
                       ))}
                     </ul>
+                  ) : (r.updates_applied ?? 0) > 0 ? (
+                    <p className="border-t border-border bg-muted/20 px-3 py-2 text-[11px] text-muted-foreground text-center">
+                      Field-level details unavailable for this job — refresh
+                      the household to see current values.
+                    </p>
                   ) : (
                     <p className="border-t border-border bg-muted/20 px-3 py-2 text-[11px] text-muted-foreground text-center">
                       No household fields were changed.
