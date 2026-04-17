@@ -77,3 +77,8 @@ export const insightApi = {
 export const jobApi = {
   getStatus: (jobId: string) => api.get(`/jobs/${jobId}`).then((r) => r.data),
 };
+
+export const adminApi = {
+  resetAllData: () =>
+    api.delete<{ households_deleted: number }>("/admin/reset").then((r) => r.data),
+};

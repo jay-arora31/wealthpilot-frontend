@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { householdApi } from "@/lib/api";
 import { useJobPoller } from "../hooks/use-job-poller";
-import { Mic, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Mic, CheckCircle2, XCircle, Loader2, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
 interface AudioUploadDialogProps {
@@ -21,21 +21,25 @@ export function AudioUploadDialog({ householdId }: AudioUploadDialogProps) {
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [startedAt, setStartedAt] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const logRef = useRef<HTMLDivElement>(null);
   const { start, reset: resetPoller, job, isPolling, isDone, isFailed } = useJobPoller({
-    // Auto-invalidate the specific household detail page when audio job completes
+    jobType: "audio",
     invalidateKeys: [["households", householdId]],
   });
 
   const handleFile = async (file: File) => {
     setError(null);
     setUploading(true);
+    setStartedAt(Date.now());
     try {
       const { job_id } = await householdApi.uploadAudio(householdId, file);
-      start(job_id);
+      start(job_id, { household_id: householdId, filename: file.name });
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Upload failed.");
       toast.error("Could not start audio processing");
+      setStartedAt(null);
     } finally {
       setUploading(false);
     }
@@ -52,22 +56,32 @@ export function AudioUploadDialog({ householdId }: AudioUploadDialogProps) {
     resetPoller();
     setError(null);
     setUploading(false);
+    setStartedAt(null);
   };
+
+  useEffect(() => {
+    if (logRef.current) {
+      logRef.current.scrollTop = logRef.current.scrollHeight;
+    }
+  }, [job?.steps?.length]);
 
   const showDropzone = !uploading && !isPolling && !isDone && !isFailed && !error;
   const showProgress = uploading || isPolling;
+  const elapsed = useElapsed(startedAt, showProgress);
 
-  // Current pipeline step label for display
   const currentStep = job?.steps?.[job.steps.length - 1] ?? "Initialising…";
 
+  const handleOpenChange = (v: boolean) => {
+    if (!v && showProgress) {
+      setOpen(false);
+      return;
+    }
+    setOpen(v);
+    if (!v) reset();
+  };
+
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(v) => {
-        setOpen(v);
-        if (!v) reset();
-      }}
-    >
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" className="gap-2">
           <Mic className="w-4 h-4" />
@@ -75,7 +89,15 @@ export function AudioUploadDialog({ householdId }: AudioUploadDialogProps) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-md shadow-lg">
+      <DialogContent
+        className="max-w-md shadow-lg"
+        onInteractOutside={(e) => {
+          if (showProgress) e.preventDefault();
+        }}
+        onEscapeKeyDown={(e) => {
+          if (showProgress) e.preventDefault();
+        }}
+      >
         <DialogHeader>
           <DialogTitle className="text-base font-bold tracking-tight">
             Upload Audio Recording
@@ -96,9 +118,20 @@ export function AudioUploadDialog({ householdId }: AudioUploadDialogProps) {
                   <Loader2 className="w-2.5 h-2.5 text-white animate-spin" />
                 </span>
               </div>
-              <div>
+              <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-foreground">Processing audio…</p>
-                <p className="text-xs text-muted-foreground truncate max-w-xs">{currentStep}</p>
+                <p className="text-xs text-muted-foreground truncate">{currentStep}</p>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                  Step
+                </p>
+                <p className="text-sm font-bold font-mono tabular-nums text-primary leading-none">
+                  {job?.steps?.length ?? 0}
+                </p>
+                <p className="text-[10px] font-mono tabular-nums text-muted-foreground mt-1">
+                  {elapsed}
+                </p>
               </div>
             </div>
 
@@ -132,7 +165,10 @@ export function AudioUploadDialog({ householdId }: AudioUploadDialogProps) {
             </div>
 
             {/* Live step log */}
-            <div className="bg-muted/50 border border-border rounded-xl p-3 max-h-44 overflow-y-auto space-y-1.5">
+            <div
+              ref={logRef}
+              className="bg-muted/50 border border-border rounded-xl p-3 max-h-44 overflow-y-auto space-y-1.5"
+            >
               {(job?.steps ?? []).length === 0 ? (
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Loader2 className="w-3 h-3 animate-spin" />
@@ -163,9 +199,20 @@ export function AudioUploadDialog({ householdId }: AudioUploadDialogProps) {
               <div className="h-full bg-primary rounded-full animate-pulse w-1/2 transition-all" />
             </div>
 
-            <p className="text-xs text-muted-foreground text-center">
-              Transcription may take 15–30 seconds depending on file length
-            </p>
+            <div className="flex items-center justify-between gap-3 pt-1">
+              <p className="text-[11px] text-muted-foreground">
+                Safe to close — progress keeps running in the header.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs shrink-0"
+                onClick={() => setOpen(false)}
+              >
+                <EyeOff className="w-3 h-3" />
+                Hide
+              </Button>
+            </div>
           </div>
         )}
 
@@ -308,4 +355,18 @@ export function AudioUploadDialog({ householdId }: AudioUploadDialogProps) {
       </DialogContent>
     </Dialog>
   );
+}
+
+function useElapsed(startMs: number | null, active: boolean): string {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (!active || !startMs) return;
+    const id = setInterval(() => setTick((t) => t + 1), 1000);
+    return () => clearInterval(id);
+  }, [active, startMs]);
+  if (!startMs) return "00:00";
+  const seconds = Math.max(0, Math.floor((Date.now() - startMs) / 1000));
+  const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
+  const ss = String(seconds % 60).padStart(2, "0");
+  return `${mm}:${ss}`;
 }

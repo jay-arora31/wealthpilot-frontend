@@ -8,6 +8,8 @@ import {
   ChevronRight,
   Bell,
 } from "lucide-react";
+import { JobStatusPill } from "@/features/households/components/JobStatusPill";
+import { AudioJobFloatingToast } from "@/features/households/components/AudioJobFloatingToast";
 
 const NAV_ITEMS = [
   {
@@ -102,18 +104,26 @@ export function AppLayout() {
 
         {/* Bottom nav + user */}
         <div className="border-t border-border px-3 py-3 space-y-0.5">
-          {[
-            { label: "Settings", icon: Settings },
-            { label: "Help & Docs", icon: HelpCircle },
-          ].map(({ label, icon: Icon }) => (
-            <button
-              key={label}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            >
-              <Icon className="w-4 h-4 shrink-0" />
-              <span>{label}</span>
-            </button>
-          ))}
+          <NavLink
+            to="/settings"
+            className={({ isActive }) =>
+              `w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition-colors ${
+                isActive
+                  ? "bg-muted text-foreground font-medium"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`
+            }
+          >
+            <Settings className="w-4 h-4 shrink-0" />
+            <span>Settings</span>
+          </NavLink>
+          <button
+            type="button"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          >
+            <HelpCircle className="w-4 h-4 shrink-0" />
+            <span>Help & Docs</span>
+          </button>
 
           <div className="mt-2 pt-2.5 border-t border-border flex items-center gap-2.5 px-1">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shrink-0 shadow-sm">
@@ -144,6 +154,7 @@ export function AppLayout() {
 
           {/* Right: actions */}
           <div className="flex items-center gap-2 shrink-0">
+            <JobStatusPill />
             <button className="relative w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
               <Bell className="w-4 h-4" />
               <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-primary" />
@@ -158,6 +169,11 @@ export function AppLayout() {
           </div>
         </main>
       </div>
+
+      {/* Global floating indicator for audio jobs whose owning household is
+          NOT currently visible. The inline AudioJobCard handles the visible
+          case, so these never show together. */}
+      <AudioJobFloatingToast />
     </div>
   );
 }
@@ -165,6 +181,7 @@ export function AppLayout() {
 function Breadcrumb() {
   const location = useLocation();
   const isInsights = location.pathname === "/insights";
+  const isSettings = location.pathname === "/settings";
   const isDetail = location.pathname.startsWith("/households/");
 
   return (
@@ -182,13 +199,19 @@ function Breadcrumb() {
           <span className="text-[13px] font-semibold text-foreground">Insights</span>
         </>
       )}
+      {isSettings && (
+        <>
+          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0" />
+          <span className="text-[13px] font-semibold text-foreground">Settings</span>
+        </>
+      )}
       {isDetail && (
         <>
           <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0" />
           <span className="text-[13px] font-semibold text-foreground">Detail</span>
         </>
       )}
-      {!isInsights && !isDetail && (
+      {!isInsights && !isDetail && !isSettings && (
         <>
           <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0" />
           <span className="text-[13px] font-semibold text-foreground">All Households</span>

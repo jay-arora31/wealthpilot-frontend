@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,6 +18,7 @@ import {
   Loader2,
   Sparkles,
   ArrowRight,
+  EyeOff,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -26,18 +27,23 @@ export function ExcelUploadDialog() {
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [startedAt, setStartedAt] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  const { start, reset: resetPoller, job, isPolling, isDone, isFailed } = useJobPoller();
+  const logRef = useRef<HTMLDivElement>(null);
+  const { start, reset: resetPoller, job, isPolling, isDone, isFailed } =
+    useJobPoller({ jobType: "excel" });
 
   const handleFile = async (file: File) => {
     setError(null);
     setUploading(true);
+    setStartedAt(Date.now());
     try {
       const { job_id } = await householdApi.uploadExcel(file);
-      start(job_id);
+      start(job_id, { filename: file.name });
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Upload failed.");
       toast.error("Could not start upload");
+      setStartedAt(null);
     } finally {
       setUploading(false);
     }
@@ -54,20 +60,34 @@ export function ExcelUploadDialog() {
     resetPoller();
     setError(null);
     setUploading(false);
+    setStartedAt(null);
   };
 
-  // When job completes, invalidate queries and show toast
-  const showDropzone = !uploading && !isPolling && !isDone && !isFailed && !error;
+  // Auto-scroll live step log as new entries arrive
+  useEffect(() => {
+    if (logRef.current) {
+      logRef.current.scrollTop = logRef.current.scrollHeight;
+    }
+  }, [job?.steps?.length]);
+
+  const showDropzone =
+    !uploading && !isPolling && !isDone && !isFailed && !error;
   const showProgress = uploading || isPolling;
+  const elapsed = useElapsed(startedAt, showProgress);
+
+  const handleOpenChange = (v: boolean) => {
+    // While processing, don't destroy progress — just hide the modal.
+    // The header pill continues to reflect live status.
+    if (!v && showProgress) {
+      setOpen(false);
+      return;
+    }
+    setOpen(v);
+    if (!v) reset();
+  };
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(v) => {
-        setOpen(v);
-        if (!v) reset();
-      }}
-    >
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
           <Upload className="w-4 h-4" />
@@ -75,7 +95,15 @@ export function ExcelUploadDialog() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-lg shadow-lg">
+      <DialogContent
+        className="max-w-lg shadow-lg"
+        onInteractOutside={(e) => {
+          if (showProgress) e.preventDefault();
+        }}
+        onEscapeKeyDown={(e) => {
+          if (showProgress) e.preventDefault();
+        }}
+      >
         <DialogHeader>
           <DialogTitle className="text-base font-bold tracking-tight">
             Import from Excel
@@ -93,7 +121,7 @@ export function ExcelUploadDialog() {
               <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                 <Loader2 className="w-4.5 h-4.5 text-primary animate-spin" />
               </div>
-              <div>
+              <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-foreground">
                   Processing your file…
                 </p>
@@ -101,10 +129,24 @@ export function ExcelUploadDialog() {
                   AI is analysing your data in the background
                 </p>
               </div>
+              <div className="text-right shrink-0">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                  Step
+                </p>
+                <p className="text-sm font-bold font-mono tabular-nums text-primary leading-none">
+                  {job?.steps?.length ?? 0}
+                </p>
+                <p className="text-[10px] font-mono tabular-nums text-muted-foreground mt-1">
+                  {elapsed}
+                </p>
+              </div>
             </div>
 
             {/* Live step log */}
-            <div className="bg-muted/50 border border-border rounded-xl p-4 max-h-52 overflow-y-auto space-y-1.5">
+            <div
+              ref={logRef}
+              className="bg-muted/50 border border-border rounded-xl p-4 max-h-52 overflow-y-auto space-y-1.5"
+            >
               {(job?.steps ?? []).length === 0 ? (
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Loader2 className="w-3 h-3 animate-spin shrink-0" />
@@ -133,6 +175,21 @@ export function ExcelUploadDialog() {
             {/* Animated progress bar */}
             <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
               <div className="h-full bg-primary rounded-full animate-pulse w-2/3" />
+            </div>
+
+            <div className="flex items-center justify-between gap-3 pt-1">
+              <p className="text-[11px] text-muted-foreground">
+                Safe to close this window — progress continues in the header.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs shrink-0"
+                onClick={() => setOpen(false)}
+              >
+                <EyeOff className="w-3 h-3" />
+                Hide
+              </Button>
             </div>
           </div>
         )}
@@ -350,4 +407,18 @@ export function ExcelUploadDialog() {
       </DialogContent>
     </Dialog>
   );
+}
+
+function useElapsed(startMs: number | null, active: boolean): string {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (!active || !startMs) return;
+    const id = setInterval(() => setTick((t) => t + 1), 1000);
+    return () => clearInterval(id);
+  }, [active, startMs]);
+  if (!startMs) return "00:00";
+  const seconds = Math.max(0, Math.floor((Date.now() - startMs) / 1000));
+  const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
+  const ss = String(seconds % 60).padStart(2, "0");
+  return `${mm}:${ss}`;
 }

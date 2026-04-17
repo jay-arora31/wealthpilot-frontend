@@ -15,6 +15,7 @@ import { MembersTable } from "../components/MembersTable";
 import { AccountsTable } from "../components/AccountsTable";
 import { BankDetailsTable } from "../components/BankDetailsTable";
 import { AudioUploadDialog } from "../components/AudioUploadDialog";
+import { AudioJobCard } from "../components/AudioJobCard";
 import { EditHouseholdDialog } from "../components/EditHouseholdDialog";
 import { Target, Settings2, Users, Landmark, Building2, Trash2, Loader2, ArrowLeft } from "lucide-react";
 
@@ -127,6 +128,9 @@ export function HouseholdDetailPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* ── Audio job progress (only when one is active for THIS household) ── */}
+      <AudioJobCard householdId={household.id} />
 
       {/* ── Conflict banner ─────────────────────────────────── */}
       {household.pending_conflict_count > 0 && (

@@ -5,6 +5,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { HouseholdListPage } from "@/features/households/pages/HouseholdListPage";
 import { HouseholdDetailPage } from "@/features/households/pages/HouseholdDetailPage";
 import { InsightsPage } from "@/features/insights/pages/InsightsPage";
+import { SettingsPage } from "@/features/settings/pages/SettingsPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,6 +30,7 @@ export function App() {
             <Route index element={<HouseholdListPage />} />
             <Route path="households/:id" element={<HouseholdDetailPage />} />
             <Route path="insights" element={<InsightsPage />} />
+            <Route path="settings" element={<SettingsPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
