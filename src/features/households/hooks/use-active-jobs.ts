@@ -10,8 +10,8 @@ import { useCallback, useEffect, useState } from "react";
  * cleared by the poller.
  */
 
-const STORAGE_KEY = "fasttrackr.active_jobs";
-const CHANGE_EVENT = "fasttrackr:active-jobs-changed";
+const STORAGE_KEY = "wealthpilot.active_jobs";
+const CHANGE_EVENT = "wealthpilot:active-jobs-changed";
 
 export type ActiveJobType = "excel" | "audio";
 

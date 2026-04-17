@@ -39,7 +39,7 @@ export function AppLayout() {
             </div>
             <div>
               <p className="text-[15px] font-bold tracking-tight text-foreground leading-none">
-                FastTrackr
+                WealthPilot
               </p>
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mt-0.5">
                 AI · Financial
