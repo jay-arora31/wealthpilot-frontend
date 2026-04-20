@@ -110,8 +110,8 @@ export function BankDetailsTable({ bankDetails, householdId }: Props) {
 
   return (
     <>
-      <div className="px-6 py-3 border-b border-border/50">
-        <div className="relative max-w-sm">
+      <div className="px-4 sm:px-6 py-3 border-b border-border/50">
+        <div className="relative max-w-sm w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
           <Input
             value={search}
@@ -130,60 +130,62 @@ export function BankDetailsTable({ bankDetails, householdId }: Props) {
         </div>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-muted/30 hover:bg-muted/30">
-            <TableHead className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider pl-6 h-11">Bank Name</TableHead>
-            <TableHead className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider h-11">Account Number</TableHead>
-            <TableHead className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider h-11">Routing Number</TableHead>
-            <TableHead className="w-24 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider text-right pr-5 h-11">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filtered.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={4} className="py-12 text-center">
-                <div className="flex flex-col items-center gap-2">
-                  <Search className="w-5 h-5 text-muted-foreground/50" />
-                  <p className="text-sm text-muted-foreground">No results for &ldquo;{search}&rdquo;</p>
-                  <button onClick={() => setSearch("")} className="text-xs text-primary hover:underline">Clear search</button>
-                </div>
-              </TableCell>
+      <div className="overflow-x-auto">
+        <Table className="min-w-[480px]">
+          <TableHeader>
+            <TableRow className="bg-muted/30 hover:bg-muted/30">
+              <TableHead className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider pl-4 sm:pl-6 h-11">Bank Name</TableHead>
+              <TableHead className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider h-11">Account Number</TableHead>
+              <TableHead className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider h-11">Routing Number</TableHead>
+              <TableHead className="w-20 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider text-right pr-4 sm:pr-5 h-11">Actions</TableHead>
             </TableRow>
-          ) : (
-            filtered.map((bd) => (
-              <TableRow key={bd.id} className="odd:bg-white even:bg-muted/20 hover:bg-primary/4 transition-colors group">
-                <TableCell className="font-semibold text-[13px] pl-6 py-3.5">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                      <Building2 className="w-3.5 h-3.5 text-muted-foreground" />
-                    </div>
-                    {bd.bank_name ?? "—"}
-                  </div>
-                </TableCell>
-                <TableCell className="font-mono tabular-nums text-[13px] text-muted-foreground py-3.5">
-                  {bd.account_number ?? "—"}
-                </TableCell>
-                <TableCell className="font-mono tabular-nums text-[13px] text-muted-foreground py-3.5">
-                  {bd.routing_number ?? "—"}
-                </TableCell>
-                <TableCell className="py-3.5 pr-5">
-                  <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
-                      onClick={() => setEditingId(bd.id)}>
-                      <Pencil className="w-3.5 h-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
-                      onClick={() => setDeletingId(bd.id)}>
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
+          </TableHeader>
+          <TableBody>
+            {filtered.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="py-12 text-center">
+                  <div className="flex flex-col items-center gap-2">
+                    <Search className="w-5 h-5 text-muted-foreground/50" />
+                    <p className="text-sm text-muted-foreground">No results for &ldquo;{search}&rdquo;</p>
+                    <button onClick={() => setSearch("")} className="text-xs text-primary hover:underline">Clear search</button>
                   </div>
                 </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+            ) : (
+              filtered.map((bd) => (
+                <TableRow key={bd.id} className="odd:bg-white even:bg-muted/20 hover:bg-primary/4 transition-colors group">
+                  <TableCell className="font-semibold text-[13px] pl-4 sm:pl-6 py-3.5">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                        <Building2 className="w-3.5 h-3.5 text-muted-foreground" />
+                      </div>
+                      {bd.bank_name ?? "—"}
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-mono tabular-nums text-[13px] text-muted-foreground py-3.5">
+                    {bd.account_number ?? "—"}
+                  </TableCell>
+                  <TableCell className="font-mono tabular-nums text-[13px] text-muted-foreground py-3.5">
+                    {bd.routing_number ?? "—"}
+                  </TableCell>
+                  <TableCell className="py-3.5 pr-4 sm:pr-5">
+                    <div className="flex items-center justify-end gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
+                        onClick={() => setEditingId(bd.id)}>
+                        <Pencil className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                        onClick={() => setDeletingId(bd.id)}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
       <Dialog open={!!editingId} onOpenChange={o => !o && setEditingId(null)}>
         {editingDetail && (

@@ -107,23 +107,23 @@ function EmptyState() {
 function LoadingSkeleton() {
   return (
     <div className="space-y-8">
-      <div className="grid grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
         {[0, 1, 2].map((i) => (
           <Skeleton key={i} className="h-[92px] rounded-xl" />
         ))}
       </div>
       <div className="bg-white rounded-xl border border-border overflow-hidden">
-        <div className="px-6 py-3.5 bg-muted/30 border-b border-border">
+        <div className="px-4 sm:px-6 py-3.5 bg-muted/30 border-b border-border">
           <Skeleton className="h-4 w-48" />
         </div>
         {[0, 1, 2, 3, 4].map((i) => (
-          <div key={i} className="flex items-center gap-6 px-6 py-4 border-b border-border last:border-0">
+          <div key={i} className="flex items-center gap-4 sm:gap-6 px-4 sm:px-6 py-4 border-b border-border last:border-0">
             <div className="flex items-center gap-3 flex-1">
               <Skeleton className="w-9 h-9 rounded-full shrink-0" />
               <Skeleton className="h-4 w-36" />
             </div>
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-4 w-24" />
+            <Skeleton className="hidden sm:block h-4 w-24" />
+            <Skeleton className="hidden sm:block h-4 w-24" />
             <Skeleton className="h-6 w-8 rounded-full" />
           </div>
         ))}
@@ -247,7 +247,7 @@ export function HouseholdListPage() {
     <div className="space-y-8">
 
       {/* Page header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Households</h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -256,7 +256,11 @@ export function HouseholdListPage() {
               : "Manage client household data and financial profiles"}
           </p>
         </div>
-        {households && households.length > 0 && <ExcelUploadDialog />}
+        {households && households.length > 0 && (
+          <div className="w-full sm:w-auto shrink-0">
+            <ExcelUploadDialog />
+          </div>
+        )}
       </div>
 
       {/* Loading */}
@@ -280,7 +284,7 @@ export function HouseholdListPage() {
         <div className="space-y-6">
 
           {/* KPI stat row */}
-          <div className="grid grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
             {statCards.map((s) => {
               const Icon = s.icon;
               return (
@@ -307,7 +311,7 @@ export function HouseholdListPage() {
           {/* Table */}
           <div className="bg-white rounded-xl border border-border overflow-hidden shadow-sm">
             {/* Table header bar */}
-            <div className="flex items-center justify-between px-6 py-3.5 border-b border-border bg-muted/20 gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-6 py-3.5 border-b border-border bg-muted/20">
               <div className="flex items-center gap-2 shrink-0">
                 <TrendingUp className="w-4 h-4 text-primary" />
                 <span className="text-sm font-semibold text-foreground">
@@ -318,18 +322,18 @@ export function HouseholdListPage() {
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="relative w-52">
+                <div className="relative flex-1 sm:flex-none sm:w-52">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/60 pointer-events-none" />
                   <Input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Search households…"
-                    className="pl-8 h-8 text-sm bg-white border-border"
+                    className="pl-8 h-8 text-sm bg-white border-border w-full"
                   />
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs font-medium whitespace-nowrap">
+                    <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs font-medium whitespace-nowrap shrink-0">
                       <ArrowUpDown className="w-3.5 h-3.5" />
                       Sort
                     </Button>
@@ -347,156 +351,141 @@ export function HouseholdListPage() {
               </div>
             </div>
 
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent border-b border-border">
-                  <TableHead
-                    className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider pl-6 py-3 cursor-pointer select-none hover:text-foreground transition-colors"
-                    onClick={() => handleColSort("name")}
-                  >
-                    <span className="inline-flex items-center">
-                      Household
-                      <SortIcon col="name" sortKey={sortKey} sortDir={sortDir} />
-                    </span>
-                  </TableHead>
-                  <TableHead
-                    className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider text-right py-3 cursor-pointer select-none hover:text-foreground transition-colors"
-                    onClick={() => handleColSort("income")}
-                  >
-                    <span className="inline-flex items-center justify-end w-full">
-                      Annual Income
-                      <SortIcon col="income" sortKey={sortKey} sortDir={sortDir} />
-                    </span>
-                  </TableHead>
-                  <TableHead
-                    className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider text-right py-3 cursor-pointer select-none hover:text-foreground transition-colors"
-                    onClick={() => handleColSort("net_worth")}
-                  >
-                    <span className="inline-flex items-center justify-end w-full">
-                      Net Worth
-                      <SortIcon col="net_worth" sortKey={sortKey} sortDir={sortDir} />
-                    </span>
-                  </TableHead>
-                  <TableHead
-                    className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider text-center py-3 w-24 cursor-pointer select-none hover:text-foreground transition-colors"
-                    onClick={() => handleColSort("member_count")}
-                  >
-                    <span className="inline-flex items-center justify-center w-full">
-                      Members
-                      <SortIcon col="member_count" sortKey={sortKey} sortDir={sortDir} />
-                    </span>
-                  </TableHead>
-                  <TableHead className="w-16 py-3" />
-                  <TableHead className="w-10 py-3" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {totalItems === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-10 text-sm text-muted-foreground">
-                      No households match &ldquo;{search}&rdquo;
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table className="min-w-[540px]">
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent border-b border-border">
+                    <TableHead
+                      className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider pl-4 sm:pl-6 py-3 cursor-pointer select-none hover:text-foreground transition-colors"
+                      onClick={() => handleColSort("name")}
+                    >
+                      <span className="inline-flex items-center">
+                        Household
+                        <SortIcon col="name" sortKey={sortKey} sortDir={sortDir} />
+                      </span>
+                    </TableHead>
+                    <TableHead
+                      className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider text-right py-3 cursor-pointer select-none hover:text-foreground transition-colors"
+                      onClick={() => handleColSort("income")}
+                    >
+                      <span className="inline-flex items-center justify-end w-full">
+                        Annual Income
+                        <SortIcon col="income" sortKey={sortKey} sortDir={sortDir} />
+                      </span>
+                    </TableHead>
+                    <TableHead
+                      className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider text-right py-3 cursor-pointer select-none hover:text-foreground transition-colors"
+                      onClick={() => handleColSort("net_worth")}
+                    >
+                      <span className="inline-flex items-center justify-end w-full">
+                        Net Worth
+                        <SortIcon col="net_worth" sortKey={sortKey} sortDir={sortDir} />
+                      </span>
+                    </TableHead>
+                    <TableHead
+                      className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider text-center py-3 w-24 cursor-pointer select-none hover:text-foreground transition-colors"
+                      onClick={() => handleColSort("member_count")}
+                    >
+                      <span className="inline-flex items-center justify-center w-full">
+                        Members
+                        <SortIcon col="member_count" sortKey={sortKey} sortDir={sortDir} />
+                      </span>
+                    </TableHead>
+                    <TableHead className="w-10 py-3" />
+                    <TableHead className="w-10 py-3" />
                   </TableRow>
-                )}
-                {pageRows.map((h: HouseholdSummary) => (
-                  <TableRow
-                    key={h.id}
-                    className="cursor-pointer hover:bg-primary/3 transition-colors border-b border-border/60 last:border-0 group"
-                    onClick={() => navigate(`/households/${h.id}`)}
-                  >
-                    <TableCell className="pl-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center shrink-0">
-                          <span className="text-xs font-bold text-primary">
-                            {h.name.slice(0, 2).toUpperCase()}
-                          </span>
+                </TableHeader>
+                <TableBody>
+                  {totalItems === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-10 text-sm text-muted-foreground">
+                        No households match &ldquo;{search}&rdquo;
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  {pageRows.map((h: HouseholdSummary) => (
+                    <TableRow
+                      key={h.id}
+                      className="cursor-pointer hover:bg-primary/3 transition-colors border-b border-border/60 last:border-0 group"
+                      onClick={() => navigate(`/households/${h.id}`)}
+                    >
+                      <TableCell className="pl-4 sm:pl-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center shrink-0">
+                            <span className="text-xs font-bold text-primary">
+                              {h.name.slice(0, 2).toUpperCase()}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-foreground">{h.name}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {h.member_count} member{h.member_count !== 1 ? "s" : ""}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-sm font-semibold text-foreground">{h.name}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {h.member_count} member{h.member_count !== 1 ? "s" : ""}
-                          </p>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right py-4">
-                      <span className="text-sm font-mono tabular-nums font-medium text-foreground">
-                        {h.income != null ? fmtFull.format(Number(h.income)) : (
-                          <span className="text-muted-foreground/50 font-normal">—</span>
-                        )}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right py-4">
-                      <span className="text-sm font-mono tabular-nums font-medium text-foreground">
-                        {h.net_worth != null ? fmtFull.format(Number(h.net_worth)) : (
-                          <span className="text-muted-foreground/50 font-normal">—</span>
-                        )}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-center py-4">
-                      <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-muted text-xs font-bold text-foreground">
-                        {h.member_count}
-                      </span>
-                    </TableCell>
-                    <TableCell className="py-4" onClick={e => e.stopPropagation()}>
-                      <Button
-                        variant="ghost" size="icon"
-                        className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive"
-                        onClick={() => setDeletingHousehold(h)}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
-                    </TableCell>
-                    <TableCell className="pr-5 py-4">
-                      <ArrowRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                      </TableCell>
+                      <TableCell className="text-right py-4">
+                        <span className="text-sm font-mono tabular-nums font-medium text-foreground">
+                          {h.income != null ? fmtFull.format(Number(h.income)) : (
+                            <span className="text-muted-foreground/50 font-normal">—</span>
+                          )}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right py-4">
+                        <span className="text-sm font-mono tabular-nums font-medium text-foreground">
+                          {h.net_worth != null ? fmtFull.format(Number(h.net_worth)) : (
+                            <span className="text-muted-foreground/50 font-normal">—</span>
+                          )}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-center py-4">
+                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-muted text-xs font-bold text-foreground">
+                          {h.member_count}
+                        </span>
+                      </TableCell>
+                      <TableCell className="py-4" onClick={e => e.stopPropagation()}>
+                        <Button
+                          variant="ghost" size="icon"
+                          className="h-7 w-7 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive"
+                          onClick={() => setDeletingHousehold(h)}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </TableCell>
+                      <TableCell className="pr-4 sm:pr-5 py-4">
+                        <ArrowRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
 
             {/* Pagination footer */}
             {totalItems > 0 && (
-              <div className="flex items-center justify-between gap-4 px-6 py-3 border-t border-border bg-muted/20 text-xs">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <span>
-                    Showing{" "}
-                    <span className="font-semibold text-foreground tabular-nums">
-                      {startIdx + 1}–{endIdx}
-                    </span>{" "}
-                    of{" "}
-                    <span className="font-semibold text-foreground tabular-nums">
-                      {totalItems}
-                    </span>
-                  </span>
-                </div>
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 sm:px-6 py-3 border-t border-border bg-muted/20 text-xs">
+                {/* Showing X–Y of Z */}
+                <span className="text-muted-foreground tabular-nums">
+                  <span className="font-semibold text-foreground">{startIdx + 1}–{endIdx}</span>
+                  {" of "}
+                  <span className="font-semibold text-foreground">{totalItems}</span>
+                </span>
 
-                <div className="flex items-center gap-4">
-                  {/* Rows per page */}
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3 flex-wrap">
+                  {/* Rows per page — hidden on small screens */}
+                  <div className="hidden sm:flex items-center gap-2">
                     <span className="text-muted-foreground">Rows per page</span>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-7 px-2 gap-1 text-xs font-medium tabular-nums"
-                        >
+                        <Button variant="outline" size="sm" className="h-7 px-2 gap-1 text-xs font-medium tabular-nums">
                           {pageSize}
                           <ChevronDown className="w-3 h-3 opacity-60" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="min-w-[72px]">
-                        <DropdownMenuRadioGroup
-                          value={String(pageSize)}
-                          onValueChange={(v) => setPageSize(Number(v))}
-                        >
+                        <DropdownMenuRadioGroup value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
                           {PAGE_SIZE_OPTIONS.map((size) => (
-                            <DropdownMenuRadioItem
-                              key={size}
-                              value={String(size)}
-                              className="text-xs tabular-nums"
-                            >
+                            <DropdownMenuRadioItem key={size} value={String(size)} className="text-xs tabular-nums">
                               {size}
                             </DropdownMenuRadioItem>
                           ))}
@@ -508,55 +497,27 @@ export function HouseholdListPage() {
                   {/* Page counter */}
                   <span className="text-muted-foreground tabular-nums">
                     Page{" "}
-                    <span className="font-semibold text-foreground">
-                      {safePage}
-                    </span>{" "}
-                    of{" "}
-                    <span className="font-semibold text-foreground">
-                      {totalPages}
-                    </span>
+                    <span className="font-semibold text-foreground">{safePage}</span>
+                    {" of "}
+                    <span className="font-semibold text-foreground">{totalPages}</span>
                   </span>
 
-                  {/* Nav buttons */}
+                  {/* Nav buttons — first/last hidden on mobile */}
                   <div className="flex items-center gap-1">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-7 w-7"
-                      onClick={() => setPage(1)}
-                      disabled={safePage === 1}
-                      aria-label="First page"
-                    >
+                    <Button variant="outline" size="icon" className="hidden sm:flex h-7 w-7"
+                      onClick={() => setPage(1)} disabled={safePage === 1} aria-label="First page">
                       <ChevronsLeft className="w-3.5 h-3.5" />
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-7 w-7"
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      disabled={safePage === 1}
-                      aria-label="Previous page"
-                    >
+                    <Button variant="outline" size="icon" className="h-7 w-7"
+                      onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={safePage === 1} aria-label="Previous page">
                       <ChevronLeft className="w-3.5 h-3.5" />
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-7 w-7"
-                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                      disabled={safePage === totalPages}
-                      aria-label="Next page"
-                    >
+                    <Button variant="outline" size="icon" className="h-7 w-7"
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={safePage === totalPages} aria-label="Next page">
                       <ChevronRight className="w-3.5 h-3.5" />
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-7 w-7"
-                      onClick={() => setPage(totalPages)}
-                      disabled={safePage === totalPages}
-                      aria-label="Last page"
-                    >
+                    <Button variant="outline" size="icon" className="hidden sm:flex h-7 w-7"
+                      onClick={() => setPage(totalPages)} disabled={safePage === totalPages} aria-label="Last page">
                       <ChevronsRight className="w-3.5 h-3.5" />
                     </Button>
                   </div>

@@ -52,7 +52,7 @@ export function ConflictReviewDialog({
 
   return (
     <div
-      className="rounded-lg p-4 flex items-center justify-between"
+      className="rounded-lg p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
       style={{
         backgroundColor: "hsl(38 92% 50% / 0.1)",
         border: "1px solid hsl(38 92% 50% / 0.3)",
@@ -89,7 +89,7 @@ export function ConflictReviewDialog({
             Review Changes
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl w-[calc(100vw-2rem)] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold">
               Review Data Conflicts
@@ -146,21 +146,21 @@ export function ConflictReviewDialog({
                       </div>
                     )}
 
-                    <div className="flex items-center gap-3 text-sm">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 text-sm">
                       <div className="flex-1 bg-muted rounded-md px-3 py-2">
                         <p className="text-xs font-medium text-muted-foreground mb-1">
                           Current value
                         </p>
-                        <p className="font-mono font-medium">
+                        <p className="font-mono font-medium break-all">
                           {c.existing_value ?? "—"}
                         </p>
                       </div>
-                      <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                      <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0 self-center rotate-90 sm:rotate-0" />
                       <div className="flex-1 bg-primary/5 border border-primary/20 rounded-md px-3 py-2">
                         <p className="text-xs font-medium text-primary mb-1">
                           Incoming value
                         </p>
-                        <p className="font-mono font-medium text-primary">
+                        <p className="font-mono font-medium text-primary break-all">
                           {c.incoming_value ?? "—"}
                         </p>
                       </div>

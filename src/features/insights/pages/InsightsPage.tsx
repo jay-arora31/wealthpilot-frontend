@@ -173,7 +173,7 @@ export function InsightsPage() {
     <div className="space-y-10">
 
       {/* Page header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Insights Dashboard</h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -181,7 +181,7 @@ export function InsightsPage() {
           </p>
         </div>
         {hasData && (
-          <div className="text-xs text-muted-foreground bg-muted/50 border border-border rounded-lg px-3 py-1.5 flex items-center gap-1.5">
+          <div className="text-xs text-muted-foreground bg-muted/50 border border-border rounded-lg px-3 py-1.5 flex items-center gap-1.5 self-start shrink-0">
             <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
             Live data
           </div>
@@ -191,17 +191,17 @@ export function InsightsPage() {
       {/* Loading */}
       {isLoading && (
         <div className="space-y-8">
-          <div className="grid grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {[0,1,2,3,4,5].map(i => <Skeleton key={i} className="h-[100px] rounded-xl" />)}
           </div>
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[0,1,2,3].map(i => <ChartSkeleton key={i} />)}
           </div>
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[0,1].map(i => <ChartSkeleton key={i} />)}
           </div>
           <ChartSkeleton tall />
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[0,1].map(i => <ChartSkeleton key={i} />)}
           </div>
         </div>

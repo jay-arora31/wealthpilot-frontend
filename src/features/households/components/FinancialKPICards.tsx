@@ -64,7 +64,7 @@ const CARDS = [
 
 export function FinancialKPICards({ household }: FinancialKPICardsProps) {
   return (
-    <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
       {CARDS.map((card) => {
         const Icon = card.icon;
         const raw = household[card.key as keyof HouseholdDetail] as string | number | null;

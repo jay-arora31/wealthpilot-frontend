@@ -81,7 +81,7 @@ export function HouseholdDetailPage() {
     <div className="space-y-5">
 
       {/* ── Header ──────────────────────────────────────────── */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div className="flex items-center gap-3 min-w-0">
           <Link to="/"
             className="flex items-center justify-center w-9 h-9 rounded-lg border border-border bg-white hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0 shadow-sm">
@@ -99,12 +99,13 @@ export function HouseholdDetailPage() {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <EditHouseholdDialog household={household} />
           <Button variant="outline" size="sm"
-            className="h-9 px-4 text-[13px] gap-1.5 text-destructive border-destructive/25 hover:bg-destructive/5 hover:text-destructive"
+            className="h-9 px-3 text-[13px] gap-1.5 text-destructive border-destructive/25 hover:bg-destructive/5 hover:text-destructive"
             onClick={() => setShowDelete(true)}>
-            <Trash2 className="w-3.5 h-3.5" />Delete
+            <Trash2 className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Delete</span>
           </Button>
           <AudioUploadDialog householdId={household.id} />
         </div>
@@ -147,8 +148,8 @@ export function HouseholdDetailPage() {
         {(hasGoals || hasPrefs) && (
           <div className="border-b border-border">
             {hasGoals && (
-              <div className={`flex items-start gap-4 px-6 py-3.5 ${hasGoals && hasPrefs ? "border-b border-border/60" : ""}`}>
-                <div className="flex items-center gap-2 pt-0.5 shrink-0 w-32">
+              <div className={`flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-4 px-4 sm:px-6 py-3.5 ${hasGoals && hasPrefs ? "border-b border-border/60" : ""}`}>
+                <div className="flex items-center gap-2 shrink-0 sm:w-32">
                   <Target className="w-3.5 h-3.5 text-primary shrink-0" />
                   <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Goals</span>
                 </div>
@@ -156,8 +157,8 @@ export function HouseholdDetailPage() {
               </div>
             )}
             {hasPrefs && (
-              <div className="flex items-start gap-4 px-6 py-3.5">
-                <div className="flex items-center gap-2 pt-0.5 shrink-0 w-32">
+              <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-4 px-4 sm:px-6 py-3.5">
+                <div className="flex items-center gap-2 shrink-0 sm:w-32">
                   <Settings2 className="w-3.5 h-3.5 text-violet-500 shrink-0" />
                   <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Preferences</span>
                 </div>
@@ -169,11 +170,11 @@ export function HouseholdDetailPage() {
 
         {/* Tab bar */}
         <Tabs defaultValue="members">
-          <div className="border-b border-border px-3">
-            <TabsList className="bg-transparent h-auto p-0 gap-0 rounded-none w-full justify-start">
+          <div className="border-b border-border px-1 sm:px-3 overflow-x-auto">
+            <TabsList className="bg-transparent h-auto p-0 gap-0 rounded-none min-w-max justify-start">
               {tabItems.map(({ value, label, icon: Icon, count }) => (
                 <TabsTrigger key={value} value={value}
-                  className="relative h-12 px-5 bg-transparent rounded-none border-0 shadow-none gap-2 text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:shadow-[inset_0_-2px_0_0_hsl(var(--primary))]">
+                  className="relative h-12 px-3 sm:px-5 bg-transparent rounded-none border-0 shadow-none gap-1.5 sm:gap-2 text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:shadow-[inset_0_-2px_0_0_hsl(var(--primary))]">
                   <Icon className="w-4 h-4" />
                   {label}
                   <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[11px] font-bold bg-muted text-muted-foreground tabular-nums">

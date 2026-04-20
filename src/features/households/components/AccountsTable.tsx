@@ -60,7 +60,7 @@ function EditAccountDialog({
         <DialogTitle className="text-base font-semibold">Edit Account</DialogTitle>
       </DialogHeader>
       <div className="space-y-4 py-2">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Account #</Label>
             <Input value={form.account_number} onChange={e => set("account_number", e.target.value)} placeholder="e.g. 4521-XXXX" />
@@ -112,66 +112,68 @@ export function AccountsTable({ accounts, householdId }: Props) {
 
   return (
     <>
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-muted/30 hover:bg-muted/30">
-            <TableHead className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider pl-6 h-11">Account #</TableHead>
-            <TableHead className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider h-11">Custodian</TableHead>
-            <TableHead className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider h-11">Type</TableHead>
-            <TableHead className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider text-right h-11">Value</TableHead>
-            <TableHead className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider h-11">Ownership</TableHead>
-            <TableHead className="w-24 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider text-right pr-5 h-11">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {accounts.map((acc) => (
-            <TableRow key={acc.id} className="odd:bg-white even:bg-muted/20 hover:bg-primary/4 transition-colors group">
-              <TableCell className="font-mono tabular-nums text-[13px] pl-6 py-3.5 text-muted-foreground">
-                {acc.account_number ?? "—"}
-              </TableCell>
-              <TableCell className="font-semibold text-[13px] py-3.5">{acc.custodian ?? "—"}</TableCell>
-              <TableCell className="py-3.5">
-                {acc.account_type ? (
-                  <Badge variant="secondary" className="text-xs">{acc.account_type}</Badge>
-                ) : <span className="text-muted-foreground text-[13px]">—</span>}
-              </TableCell>
-              <TableCell className="text-right font-mono tabular-nums font-semibold text-[13px] py-3.5">
-                {acc.account_value != null ? fmt.format(Number(acc.account_value))
-                  : <span className="text-muted-foreground font-normal">—</span>}
-              </TableCell>
-              <TableCell className="py-3.5">
-                {acc.ownerships.length === 0 ? (
-                  <span className="text-muted-foreground text-[13px]">—</span>
-                ) : (
-                  <div className="flex flex-wrap gap-1.5">
-                    {acc.ownerships.map((o) => (
-                      <span key={o.id}
-                        className="inline-flex items-center gap-1 bg-muted rounded-full px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-                        {o.member_name ?? "Unknown"}
-                        {o.ownership_percentage != null && (
-                          <span className="font-mono font-semibold text-foreground">{Number(o.ownership_percentage)}%</span>
-                        )}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </TableCell>
-              <TableCell className="py-3.5 pr-5">
-                <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
-                    onClick={() => setEditingId(acc.id)}>
-                    <Pencil className="w-3.5 h-3.5" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
-                    onClick={() => setDeletingId(acc.id)}>
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
-              </TableCell>
+      <div className="overflow-x-auto">
+        <Table className="min-w-[680px]">
+          <TableHeader>
+            <TableRow className="bg-muted/30 hover:bg-muted/30">
+              <TableHead className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider pl-4 sm:pl-6 h-11">Account #</TableHead>
+              <TableHead className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider h-11">Custodian</TableHead>
+              <TableHead className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider h-11">Type</TableHead>
+              <TableHead className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider text-right h-11">Value</TableHead>
+              <TableHead className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider h-11">Ownership</TableHead>
+              <TableHead className="w-20 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider text-right pr-4 sm:pr-5 h-11">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {accounts.map((acc) => (
+              <TableRow key={acc.id} className="odd:bg-white even:bg-muted/20 hover:bg-primary/4 transition-colors group">
+                <TableCell className="font-mono tabular-nums text-[13px] pl-4 sm:pl-6 py-3.5 text-muted-foreground">
+                  {acc.account_number ?? "—"}
+                </TableCell>
+                <TableCell className="font-semibold text-[13px] py-3.5">{acc.custodian ?? "—"}</TableCell>
+                <TableCell className="py-3.5">
+                  {acc.account_type ? (
+                    <Badge variant="secondary" className="text-xs">{acc.account_type}</Badge>
+                  ) : <span className="text-muted-foreground text-[13px]">—</span>}
+                </TableCell>
+                <TableCell className="text-right font-mono tabular-nums font-semibold text-[13px] py-3.5">
+                  {acc.account_value != null ? fmt.format(Number(acc.account_value))
+                    : <span className="text-muted-foreground font-normal">—</span>}
+                </TableCell>
+                <TableCell className="py-3.5">
+                  {acc.ownerships.length === 0 ? (
+                    <span className="text-muted-foreground text-[13px]">—</span>
+                  ) : (
+                    <div className="flex flex-wrap gap-1.5">
+                      {acc.ownerships.map((o) => (
+                        <span key={o.id}
+                          className="inline-flex items-center gap-1 bg-muted rounded-full px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                          {o.member_name ?? "Unknown"}
+                          {o.ownership_percentage != null && (
+                            <span className="font-mono font-semibold text-foreground">{Number(o.ownership_percentage)}%</span>
+                          )}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </TableCell>
+                <TableCell className="py-3.5 pr-4 sm:pr-5">
+                  <div className="flex items-center justify-end gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
+                      onClick={() => setEditingId(acc.id)}>
+                      <Pencil className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                      onClick={() => setDeletingId(acc.id)}>
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
       <Dialog open={!!editingId} onOpenChange={o => !o && setEditingId(null)}>
         {editingAccount && (
