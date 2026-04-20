@@ -11,7 +11,7 @@ import { RiskToleranceChart } from "../components/RiskToleranceChart";
 import { TopWealthChart } from "../components/TopWealthChart";
 import { LiquidityChart } from "../components/LiquidityChart";
 import type { InsightsResponse } from "@/types";
-import { formatCompact, pluralize } from "@/lib/format";
+import { formatCompact, formatCurrency, pluralize } from "@/lib/format";
 import {
   BarChart3, TrendingUp, Users, Landmark, Wallet,
   ArrowRight, DollarSign, PieChart, Activity,
@@ -53,7 +53,7 @@ function SummaryBar({ data }: { data: InsightsResponse }) {
     },
     {
       label: "Portfolio Income",
-      value: formatCompact(totalIncome),
+      value: formatCurrency(totalIncome),
       sub: withIncome > 0
         ? `${withIncome}/${totalHouseholds} · avg ${formatCompact(totalIncome / withIncome)}`
         : "No data yet",
@@ -64,7 +64,7 @@ function SummaryBar({ data }: { data: InsightsResponse }) {
     },
     {
       label: "Total Net Worth",
-      value: formatCompact(totalNW),
+      value: formatCurrency(totalNW),
       sub: withNetWorth > 0
         ? `${withNetWorth}/${totalHouseholds} · ${formatCompact(totalLiquid)} liquid`
         : "No data yet",

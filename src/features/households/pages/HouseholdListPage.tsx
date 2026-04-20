@@ -63,13 +63,6 @@ const SORT_OPTIONS: { value: `${SortKey}-${SortDir}`; label: string }[] = [
   { value: "member_count-asc",  label: "Members (fewest first)" },
 ];
 
-const fmt = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-  notation: "compact",
-  compactDisplay: "short",
-});
 const fmtFull = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
@@ -227,7 +220,7 @@ export function HouseholdListPage() {
     },
     {
       label: "Portfolio Income",
-      value: fmt.format(totalIncome),
+      value: fmtFull.format(totalIncome),
       icon: DollarSign,
       style: "stat-card-teal",
       iconColor: "text-[hsl(172,66%,38%)]",
@@ -235,7 +228,7 @@ export function HouseholdListPage() {
     },
     {
       label: "Total Net Worth",
-      value: fmt.format(totalNW),
+      value: fmtFull.format(totalNW),
       icon: Wallet,
       style: "stat-card-blue",
       iconColor: "text-[hsl(217,80%,55%)]",
